@@ -1,0 +1,23 @@
+{
+  "schema_version": "hf_audio_embedding_config_v1",
+  "description_ja": "Colab GPU 上で Hugging Face 音声 transformer を contact-centered 打球音窓に適用する frozen embedding branch。",
+  "default_model_id": "MIT/ast-finetuned-audioset-10-10-0.4593",
+  "alternatives": [
+    {
+      "model_id": "laion/clap-htsat-fused",
+      "note_ja": "CLAP 系。音イベント意味特徴の比較用。processor/model shape が異なる場合は小規模 pilot で確認する。"
+    }
+  ],
+  "runtime": {
+    "device": "auto",
+    "allow_model_download": true,
+    "trust_remote_code": false,
+    "use_registered_hf_token": true
+  },
+  "output_contract": {
+    "features": "features/{audio_embedding_feature_id}/manifest.parquet",
+    "predictions": "predictions/{audio_embedding_run_id}/predictions_v1.parquet",
+    "metrics": "predictions/{audio_embedding_run_id}/metrics_v1.json",
+    "report": "reports/audio_impact/{audio_embedding_run_id}/index.html"
+  }
+}

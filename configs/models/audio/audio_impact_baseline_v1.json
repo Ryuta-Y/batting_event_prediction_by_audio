@@ -1,0 +1,66 @@
+{
+  "schema_version": "audio_impact_model_config_v1",
+  "model_family": "audio_impact_supervised_heads",
+  "description_ja": "打球音 impact feature から Statcast event-level targets を予測する baseline。sklearn がある Colab では HGB、無い環境では ridge fallback。",
+  "audio_window": {
+    "sample_rate": 16000,
+    "context_start_ms": -750.0,
+    "context_end_ms": 500.0,
+    "window_start_ms": -250.0,
+    "window_end_ms": 150.0,
+    "frame_ms": 10.0,
+    "hop_ms": 5.0,
+    "high_frequency_hz": 2500.0,
+    "low_frequency_hz": 500.0,
+    "representative_clip_per_event": true
+  },
+  "feature_extractor": {
+    "name": "numpy_contact_impact_features",
+    "feature_groups": [
+      "amplitude",
+      "short-time energy",
+      "onset",
+      "spectrum",
+      "post/pre energy"
+    ],
+    "primary_feature_names": [
+      "rms",
+      "peak_abs",
+      "crest_factor",
+      "impact_onset_strength",
+      "impact_peak_time_ms",
+      "high_frequency_energy_ratio",
+      "spectral_centroid_hz",
+      "spectral_flatness"
+    ]
+  },
+  "head_model": {
+    "model_family": "auto",
+    "preferred_colab_model": "sklearn HistGradientBoosting per target",
+    "fallback_model": "closed-form ridge",
+    "ridge_alpha": 1.0,
+    "random_state": 42
+  },
+  "target_policy": {
+    "event_targets": ["ev", "la", "hard_hit", "barrel", "xba", "xwoba"],
+    "exclude_event_ops": true,
+    "preserve_optional_label_masks": true,
+    "do_not_fill_xba_xwoba_with_zero": true
+  },
+  "comparison_policy": {
+    "required_baselines": [
+      "context_catboost",
+      "sequence_tcn",
+      "video_lightweight",
+      "video_frozen_encoder",
+      "vlm_mechanics",
+      "fusion"
+    ],
+    "audio_branches": [
+      "audio_raw_impact",
+      "audio_enhanced_impact",
+      "audio_separated_impact",
+      "audio_embedding_impact"
+    ]
+  }
+}

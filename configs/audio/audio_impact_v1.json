@@ -1,0 +1,76 @@
+{
+  "schema_version": "audio_impact_config_v1",
+  "description_ja": "打球音の contact-centered impact window を抽出し、raw/enhanced/separated/HF embedding の各 branch を比較するための共通設定。",
+  "drive_contract": {
+    "base_dir": "/content/drive/MyDrive/baseball_vision",
+    "repo_dir": "/content/drive/MyDrive/codex/batting_codex_handoff_with_audio",
+    "cache_dir": "/content/cache/baseball_vision",
+    "reuse_raw_video": true,
+    "input_clips": "clips/{full_run_id}/clips_v1.parquet",
+    "input_bbe_events": "manifests/bbe_events_v1.parquet"
+  },
+  "audio_window": {
+    "sample_rate": 16000,
+    "context_start_ms": -750.0,
+    "context_end_ms": 500.0,
+    "window_start_ms": -250.0,
+    "window_end_ms": 150.0,
+    "frame_ms": 10.0,
+    "hop_ms": 5.0,
+    "high_frequency_hz": 2500.0,
+    "low_frequency_hz": 500.0,
+    "representative_clip_per_event": true,
+    "min_confidence_for_clean": 0.0
+  },
+  "branches": {
+    "raw": {
+      "prediction_run_id": "audio_raw_impact_mlb_2024_2026_v2",
+      "audio_feature_id": "audio_impact_mlb_2024_2026_v2",
+      "aggregation_scope": "audio_raw_impact"
+    },
+    "enhanced": {
+      "prediction_run_id": "audio_enhanced_impact_mlb_2024_2026_v2",
+      "audio_feature_id": "audio_enhanced_impact_mlb_2024_2026_v2",
+      "aggregation_scope": "audio_enhanced_impact"
+    },
+    "separated": {
+      "prediction_run_id": "audio_separated_impact_mlb_2024_2026_v2",
+      "audio_feature_id": "audio_separated_impact_mlb_2024_2026_v2",
+      "aggregation_scope": "audio_separated_impact",
+      "separation_backend": "transient_enhance",
+      "optional_demucs_backend": {
+        "model": "htdemucs",
+        "stem": "no_vocals",
+        "device": "cuda"
+      }
+    },
+    "hf_embedding": {
+      "prediction_run_id": "audio_embedding_impact_mlb_2024_2026_v2",
+      "audio_feature_id": "audio_embedding_impact_mlb_2024_2026_v2",
+      "aggregation_scope": "audio_embedding_impact",
+      "model_id": "MIT/ast-finetuned-audioset-10-10-0.4593",
+      "device": "auto",
+      "trust_remote_code": false
+    }
+  },
+  "leakage_policy": {
+    "primary_window_ja": "標準比較は contact 前後 -250ms から +150ms の短い impact window のみを使う。",
+    "commentary_and_crowd_policy_ja": "実況・歓声・打球結果の長い後続音を主特徴に入れない。post-contact の長い窓は ablation のみ。",
+    "do_not_average_different_events": true,
+    "same_event_views_may_be_ensembled": true
+  },
+  "report_outputs": {
+    "html": "reports/audio_impact/{prediction_run_id}/index.html",
+    "tables": [
+      "reports/audio_impact/{prediction_run_id}/tables/metrics.csv",
+      "reports/audio_impact/{prediction_run_id}/tables/feature_summary.csv",
+      "reports/audio_impact/{prediction_run_id}/tables/feature_target_correlations.csv",
+      "reports/audio_impact/{prediction_run_id}/tables/status_counts.csv"
+    ],
+    "figures": [
+      "reports/audio_impact/{prediction_run_id}/figures/system_diagram.svg",
+      "reports/audio_impact/{prediction_run_id}/figures/status_counts.svg",
+      "reports/audio_impact/{prediction_run_id}/figures/top_feature_target_correlations.svg"
+    ]
+  }
+}
